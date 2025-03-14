@@ -1,0 +1,65 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:PokeAppi.ViewModels"
+			 xmlns:converters="clr-namespace:PokeAppi.Converters"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="PokeAppi.Views.MainView"
+             x:DataType="vm:MainViewModel">
+
+	<UserControl.Resources>
+		<converters:UrlToBitmapConverter x:Key="UrlToBitmapConverter"/>
+	</UserControl.Resources>
+
+	<Grid Background="#2E2E2E">
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="*"/>
+		</Grid.RowDefinitions>
+
+		<!-- Sección de búsqueda -->
+		<StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="10">
+			<TextBox Text="{Binding SearchInput}" Width="250" Height="10" Watermark="Enter ID or Name..."
+                     Background="White" Foreground="Black" FontSize="14"/>
+			<Button Content="Search" Command="{Binding SearchCommand}" Width="100" Margin="5"
+                    Background="#FFAA00" Foreground="Black" FontWeight="Bold"/>
+			<Button Content="Cancel" Command="{Binding CancelCommand}" Width="100"
+                    Background="#FF5555" Foreground="White" FontWeight="Bold"/>
+		</StackPanel>
+
+		<!-- Texto de estado -->
+		<TextBlock Grid.Row="1" Text="{Binding TextHandler}" Foreground="White" FontSize="14"
+                   HorizontalAlignment="Center" Margin="5"/>
+
+		<!-- Contenedor con Scroll para mostrar Pokémon -->
+		<ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" Margin="10">
+			<ItemsControl ItemsSource="{Binding Pokemons}">
+				<ItemsControl.ItemsPanel>
+					<ItemsPanelTemplate>
+						<WrapPanel HorizontalAlignment="Center" VerticalAlignment="Top"/>
+					</ItemsPanelTemplate>
+				</ItemsControl.ItemsPanel>
+				<ItemsControl.ItemTemplate>
+					<DataTemplate>
+						<Border Background="#444" CornerRadius="10" Padding="10" Margin="10">
+							<StackPanel HorizontalAlignment="Center">
+								<Image Width="150" Height="150" Source="{Binding Sprites.Front_Default, Converter={StaticResource UrlToBitmapConverter}}" Margin="5"/>
+								<TextBlock Text="{Binding ID, StringFormat='ID: {0}' }" FontSize="16" Foreground="White" FontWeight="Bold"
+                                           HorizontalAlignment="Center"/>
+								<TextBlock Text="{Binding Name}" FontSize="16" Foreground="White" FontWeight="Bold"
+                                           HorizontalAlignment="Center"/>
+								<TextBlock Text="{Binding Weight, StringFormat='Weight: {0}'}" FontSize="14"
+                                           Foreground="White" HorizontalAlignment="Center"/>
+								<TextBlock Text="{Binding Types[0].Type.Name, StringFormat='Type: {0}'}" FontSize="14"
+                                           Foreground="White" HorizontalAlignment="Center"/>
+							</StackPanel>
+						</Border>
+					</DataTemplate>
+				</ItemsControl.ItemTemplate>
+			</ItemsControl>
+		</ScrollViewer>
+
+	</Grid>
+</UserControl>
