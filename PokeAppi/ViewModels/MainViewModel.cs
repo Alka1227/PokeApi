@@ -24,6 +24,7 @@ public class MainViewModel : ViewModelBase
     private const int MaxRetries = 3;
     private const int InitialDelayMilliseconds = 2000;
     private CancellationTokenSource _cancellationTokenSource = new();
+    private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(5);
 
     private string _searchInput;
     public string SearchInput
@@ -80,6 +81,11 @@ public class MainViewModel : ViewModelBase
             TextHandler = "Search cancelled.";
             ResultText = "";
             Pokemons.Clear();
+
+            while (_semaphore.CurrentCount < 5)
+            {
+                _semaphore.Release();
+            }
         }
     }
     public async Task FetchPokeApi()
@@ -118,10 +124,19 @@ public class MainViewModel : ViewModelBase
 
         foreach (var name in pokemonNames)
         {
-            var pokemon = await GetPokemonDetails(name, cancellationToken);
-            if (pokemon != null)
+            await _semaphore.WaitAsync(cancellationToken);
+            try
             {
-                pokemonResults.Add(pokemon);
+                var pokemon = await GetPokemonDetails(name, cancellationToken);
+                if (pokemon != null)
+                    if (pokemon != null)
+                    {
+                        pokemonResults.Add(pokemon);               
+                    }
+            }
+            finally
+            {
+                _semaphore.Release(); // Libera el semáforo
             }
         }
 
